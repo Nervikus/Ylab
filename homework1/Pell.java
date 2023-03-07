@@ -3,12 +3,12 @@ import java.util.Scanner;
 public class Pell {
     public static void main(String[] args) throws Exception {
         try (Scanner scanner = new Scanner(System.in)) {
-            int pell = formula(scanner);
+            long pell = formula(scanner);
             System.out.println(pell);
         }
     }
 
-    private static int formula(Scanner scanner) {
+    private static long formula(Scanner scanner) {
         int n = 0;
         boolean flag = true;
         System.out.println("Введите число от 0 до 30:");
@@ -30,11 +30,11 @@ public class Pell {
         if (n == 0) return 0;
         if (n == 1) return 1;
 
-        int a = 0;
-        int b = 1;
+        long a = 0;
+        long b = 1;
 
         for (int i = 1; i < n; i++) {
-            int temp = a;
+            long temp = a;
             a = b;
             b = 2 * a + temp;
         }
