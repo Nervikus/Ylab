@@ -21,11 +21,4 @@ public class RateLimitedPrinterImpl implements RateLimitedPrinter{
             lastTime = currentTime;
         }
     }
-
-    public static void main(String[] args) throws Exception {
-        RateLimitedPrinter rateLimitedPrinter = new RateLimitedPrinterImpl(1000);
-        for (int i = 0; i < 1000000000; i++) {
-            rateLimitedPrinter.print(String.valueOf(i));
-        }
-    }
 }
