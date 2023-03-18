@@ -40,5 +40,13 @@ public class DatedMapTest {
         System.out.println(datedMap.get("A"));
         System.out.println(datedMap.getKeyLastInsertionDate("A"));
         System.out.println(datedMap.keySet());
+
+        Thread.sleep(2000);
+
+        datedMap.put("A", "Aa");
+        System.out.println(datedMap.containsKey("A"));
+        System.out.println(datedMap.get("A"));
+        System.out.println(datedMap.getKeyLastInsertionDate("A"));
+        System.out.println(datedMap.keySet());
     }
 }
