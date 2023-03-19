@@ -3,6 +3,10 @@ package orgstructure;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ *  Здесь я вывожу в консоль главного босса и его прямых подчиненных.
+ *  Если раскомментировать код в классе OrgStructureParserImpl, то вывод будет другой (подробное описание в классе)
+ */
 public class OrgStructureParserTest {
     public static void main(String[] args) {
         OrgStructureParser parser = new OrgStructureParserImpl();

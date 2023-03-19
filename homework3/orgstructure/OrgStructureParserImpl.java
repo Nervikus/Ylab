@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 public class OrgStructureParserImpl implements OrgStructureParser {
-
     @Override
     public Employee parseStructure(File csvFile) throws IOException {
         List<String[]> dataList = readCsvFile(csvFile);
@@ -21,7 +20,7 @@ public class OrgStructureParserImpl implements OrgStructureParser {
 
     private List<String[]> readCsvFile(File csvFile) throws IOException {
         List<String[]> dataList = new ArrayList<>();
-        try(BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(csvFile))) {
             String line;
             boolean isFirstLine = true;
             while ((line = reader.readLine()) != null) {
@@ -62,9 +61,34 @@ public class OrgStructureParserImpl implements OrgStructureParser {
     private Employee findBoss(Map<Long, Employee> employees) {
         for (Employee employee : employees.values()) {
             if (employee.getBossId() == null) {
+/**
+ * Если раскомментировать код ниже, то мы будем выводить босса, его прямых подчиненных и их прямых подчиненных (если есть)
+ * в иерархическом порядке (я просто не знал, нужно это или нет, на всякий случай добавил)
+  */
+//                List<Employee> subordinates = employee.getSubordinates();
+//                if (employee.getBossId() == null) {
+//                    System.out.println(employee.getName() + " - " + employee.getPosition());
+//                }
+//                for (Employee subordinate : subordinates) {
+//                    print(employee, subordinate);
+//                }
                 return employee;
             }
         }
         throw new RuntimeException("Генеральный директор не найден.");
+    }
+
+    /**
+     * Этот метод задействуется, если раскомментировать код выше
+     * @param boss
+     * @param subordinate
+     */
+    private void print(Employee boss, Employee subordinate) {
+        System.out.println("\t" + subordinate.getName() + " - " + subordinate.getPosition()
+                + ", начальник - " + boss.getName());
+        List<Employee> subordinates = subordinate.getSubordinates();
+        for (Employee employee : subordinates) {
+            print(subordinate, employee);
+        }
     }
 }
