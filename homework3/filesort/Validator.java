@@ -29,7 +29,6 @@ public class Validator {
                 lineCount++;
             }
             System.out.println("Файл отсортирован успешно!");
-            System.out.println("Количество строк на входе: " + lineCount);
             return true;
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -37,10 +36,11 @@ public class Validator {
         } finally {
             try (Stream<String> lines = Files.lines(file.toPath())) {
                 long count = lines.count();
+                String equalsLines = lineCount == count ? "Да" : "Нет";
                 if (count != lineCount) {
                     System.out.println("Количество строк в файле: " + count);
                 } else {
-                    System.out.println("Количество строк на выходе: " + lineCount);
+                    System.out.println("Количество строк на входе и выходе одинаковое? - " + equalsLines);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
