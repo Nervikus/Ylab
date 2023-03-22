@@ -82,22 +82,51 @@ public class Sorter {
     }
 
     private File mergeSortedFiles(List<File> files) throws IOException {
-        PriorityQueue<Long> queue = new PriorityQueue<>();
+        List<Scanner> scanners = new ArrayList<>();
         for (File file : files) {
-            try(Scanner scanner = new Scanner(file)) {
-                while (scanner.hasNextLong()) {
-                    queue.add(scanner.nextLong());
-                }
-            }
+            scanners.add(new Scanner(file));
         }
+
+        PriorityQueue<Long>[] queues = new PriorityQueue[scanners.size()];
+        for (int i = 0; i < queues.length; i++) {
+            queues[i] = new PriorityQueue<>(CHUNK_SIZE_BYTES / 4);
+            fillQueue(queues[i], scanners.get(i), CHUNK_SIZE_BYTES / 4);
+        }
+
         File resultFile = new File("sorted_data.txt");
         try (PrintWriter pw = new PrintWriter(resultFile)) {
-            while (!queue.isEmpty()) {
-                pw.println(queue.poll());
+            while (true) {
+                long min = Long.MAX_VALUE;
+                int minQueueIndex = -1;
+                for (int i = 0; i < queues.length; i++) {
+                    PriorityQueue<Long> queue = queues[i];
+                    if (!queue.isEmpty() && queue.peek() < min) {
+                        min = queue.peek();
+                        minQueueIndex = i;
+                    }
+                }
+                if (minQueueIndex == -1) {
+                    break;
+                }
+                pw.println(min);
+                PriorityQueue<Long> queue = queues[minQueueIndex];
+                queue.poll();
+                if (queue.isEmpty()) {
+                    fillQueue(queue, scanners.get(minQueueIndex), CHUNK_SIZE_BYTES / 4);
+                }
             }
             pw.flush();
         }
+        for (Scanner scanner : scanners) {
+            scanner.close();
+        }
         return resultFile;
+    }
+
+    private static void fillQueue(PriorityQueue<Long> queue, Scanner scanner, int maxElements) {
+        for (int i = 0; i < maxElements && scanner.hasNextLong(); i++) {
+            queue.add(scanner.nextLong());
+        }
     }
 
     private void deleteTempFiles(List<File> files) {
