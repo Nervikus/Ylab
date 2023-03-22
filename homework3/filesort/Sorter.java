@@ -4,14 +4,14 @@ import java.io.*;
 import java.util.*;
 
 /**
- * 1. Разбиваем входящий файл на несколько временных файлов размером не более 1 Гб.
+ * 1. Разбиваем входящий файл на несколько временных файлов (размер указываем сами).
  * 2. Сортируем каждый из временных файлов по возрастанию.
  * 3. Объединяем отсортированные временные файлы в один файл с помощью сортировки слиянием.
  * 4. Удаляем временные файлы.
  */
 
 public class Sorter {
-    private static final int CHUNK_SIZE_BYTES = 1000 * 1000 * 1000;
+    private static final int CHUNK_SIZE_BYTES = 256;
     private List<File> files;
     private List<File> sortedFiles;
     private File resultFile;
@@ -26,26 +26,38 @@ public class Sorter {
             resultFile = mergeSortedFiles(sortedFiles);
             return resultFile;
         } finally {
-            deleteTempFiles(files);
             deleteTempFiles(sortedFiles);
+            deleteTempFiles(files);
         }
     }
 
     private List<File> splitFile(File dataFile) throws IOException {
         List<File> files = new ArrayList<>();
-        int fileSizeBytes = (int) dataFile.length();
-        int chunks = (int) Math.ceil((double) fileSizeBytes / CHUNK_SIZE_BYTES);
-        byte[] buffer = new byte[CHUNK_SIZE_BYTES];
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(dataFile))) {
-            for (int i = 0; i < chunks; i++) {
-                int bytesRead = bis.read(buffer);
-                File file = new File("temp" + i + ".txt");
-                try (FileOutputStream fos = new FileOutputStream(file)) {
-                    fos.write(buffer, 0, bytesRead);
-                    fos.flush();
+        try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
+            String line;
+            int currentLineNumber = 0;
+            int fileNumber = 0;
+            File tempFile = new File("temp" + fileNumber + ".txt");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+                writer.newLine();
+                currentLineNumber++;
+
+                if (currentLineNumber >= CHUNK_SIZE_BYTES) {
+                    writer.close();
+                    files.add(tempFile);
+                    currentLineNumber = 0;
+                    fileNumber++;
+                    tempFile = new File("temp" + fileNumber + ".txt");
+                    writer = new BufferedWriter(new FileWriter(tempFile));
                 }
-                files.add(file);
             }
+            if (currentLineNumber > 0) {
+                writer.close();
+                files.add(tempFile);
+            }
+            writer.close();
         }
         return files;
     }
