@@ -33,6 +33,18 @@ public class Validator {
         } catch (IOException ex) {
             ex.printStackTrace();
             return false;
+        } finally {
+            try (Stream<String> lines = Files.lines(file.toPath())) {
+                long count = lines.count();
+                if (count != lineCount) {
+                    System.out.println("Количество строк в файле: " + count);
+                } else {
+                    System.out.println("Количество строк на входе: " + lineCount);
+                    System.out.println("Количество строк на выходе: " + count);
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }
