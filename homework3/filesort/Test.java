@@ -8,7 +8,7 @@ public class Test {
     public static void main(String[] args) throws IOException {
         long start = System.currentTimeMillis();
         System.out.println(new Date());
-        File dataFile = new Generator().generate("data.txt", 1_000_000);
+        File dataFile = new Generator().generate("data.txt", 375_000_000);
         System.out.println(new Validator(dataFile).isSorted()); // false
         System.out.println();
 
