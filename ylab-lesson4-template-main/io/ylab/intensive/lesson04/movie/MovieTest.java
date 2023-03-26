@@ -1,10 +1,8 @@
 package io.ylab.intensive.lesson04.movie;
-
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
+import java.sql.*;
 import javax.sql.DataSource;
-
 import io.ylab.intensive.lesson04.DbUtil;
 
 public class MovieTest {
@@ -13,7 +11,7 @@ public class MovieTest {
     MovieLoader movieLoader = new MovieLoaderImpl(dataSource);
 
     /*
-     * В репозитории Романа имя файла "movies.csv",
+     * В репозитории Максима имя файла "movies.csv",
      * а файл, который нужно было скачать - "film.csv"
      */
     File dataFile = new File("film.csv");
