@@ -55,12 +55,22 @@ public class DataProcessor {
 
     private void deletePerson(Person person) {
         Long personId = person.getId();
-        String SQL = "DELETE FROM person WHERE person_id = ?";
+        String SQL = "SELECT * FROM person WHERE person_id = ?";
         try (java.sql.Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             statement.setLong(1, personId);
-            statement.executeUpdate();
-            System.out.printf("%tT - Person deleted (ID:%d)%n", new Date(), personId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String deleteSQL = "DELETE FROM person WHERE person_id = ?";
+                    PreparedStatement deleteStatement = connection.prepareStatement(deleteSQL);
+                    deleteStatement.setLong(1, personId);
+                    deleteStatement.executeUpdate();
+                    deleteStatement.close();
+                    System.out.printf("%tT - Person deleted (ID:%d)%n", new Date(), personId);
+                } else {
+                    System.out.printf("%tT - Person (ID:%d) is not found to delete%n", new Date(), personId);
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -75,27 +85,28 @@ public class DataProcessor {
         try (java.sql.Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             statement.setLong(1, personId);
-            ResultSet resultSet = statement.executeQuery();
-            if (resultSet.next()) {
-                String updateSQL = "UPDATE person SET first_name = ?, last_name = ?, middle_name = ? WHERE person_id = ?";
-                PreparedStatement updateStatement = connection.prepareStatement(updateSQL);
-                updateStatement.setString(1, name);
-                updateStatement.setString(2, lastName);
-                updateStatement.setString(3, middleName);
-                updateStatement.setLong(4, personId);
-                updateStatement.executeUpdate();
-                updateStatement.close();
-                System.out.printf("%tT - Person updated (ID:%d)%n", new Date(), personId);
-            } else {
-                String insertSQL = "INSERT INTO person (person_id, first_name, last_name, middle_name) VALUES (?, ?, ?, ?)";
-                PreparedStatement insertStatement = connection.prepareStatement(insertSQL);
-                insertStatement.setLong(1, personId);
-                insertStatement.setString(2, name);
-                insertStatement.setString(3, lastName);
-                insertStatement.setString(4, middleName);
-                insertStatement.executeUpdate();
-                insertStatement.close();
-                System.out.printf("%tT - Person inserted (ID:%d)%n", new Date(), personId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String updateSQL = "UPDATE person SET first_name = ?, last_name = ?, middle_name = ? WHERE person_id = ?";
+                    PreparedStatement updateStatement = connection.prepareStatement(updateSQL);
+                    updateStatement.setString(1, name);
+                    updateStatement.setString(2, lastName);
+                    updateStatement.setString(3, middleName);
+                    updateStatement.setLong(4, personId);
+                    updateStatement.executeUpdate();
+                    updateStatement.close();
+                    System.out.printf("%tT - Person updated (ID:%d)%n", new Date(), personId);
+                } else {
+                    String insertSQL = "INSERT INTO person (person_id, first_name, last_name, middle_name) VALUES (?, ?, ?, ?)";
+                    PreparedStatement insertStatement = connection.prepareStatement(insertSQL);
+                    insertStatement.setLong(1, personId);
+                    insertStatement.setString(2, name);
+                    insertStatement.setString(3, lastName);
+                    insertStatement.setString(4, middleName);
+                    insertStatement.executeUpdate();
+                    insertStatement.close();
+                    System.out.printf("%tT - Person inserted (ID:%d)%n", new Date(), personId);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

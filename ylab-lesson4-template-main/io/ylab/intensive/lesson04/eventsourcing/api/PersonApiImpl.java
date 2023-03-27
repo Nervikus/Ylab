@@ -70,24 +70,28 @@ public class PersonApiImpl implements PersonApi {
     }
 
     @Override
-    public Person findPerson(Long personId) throws SQLException {
+    public Person findPerson(Long personId) {
         Person person = new Person();
-        DataSource dataSource = DbUtil.buildDataSource();
-        try (java.sql.Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT * FROM person WHERE person_id = ?")) {
-            statement.setLong(1, personId);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                person.setId(resultSet.getLong(1));
-                person.setName(resultSet.getString(2));
-                person.setLastName(resultSet.getString(3));
-                person.setMiddleName(resultSet.getString(4));
-                System.out.println(person);
-                return person;
-            } else {
-                System.out.println("В базе данных нет человека с id=" + personId);
+        try {
+            DataSource dataSource = DbUtil.buildDataSource();
+            try (java.sql.Connection connection = dataSource.getConnection();
+                 PreparedStatement statement = connection.prepareStatement(
+                         "SELECT * FROM person WHERE person_id = ?")) {
+                statement.setLong(1, personId);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        person.setId(resultSet.getLong(1));
+                        person.setName(resultSet.getString(2));
+                        person.setLastName(resultSet.getString(3));
+                        person.setMiddleName(resultSet.getString(4));
+                        System.out.println(person);
+                        return person;
+                    } else {
+                        System.out.println("В базе данных нет человека с id=" + personId);
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,22 +100,26 @@ public class PersonApiImpl implements PersonApi {
     }
 
     @Override
-    public List<Person> findAll() throws SQLException {
+    public List<Person> findAll() {
         List<Person> people = new ArrayList<>();
-        DataSource dataSource = DbUtil.buildDataSource();
-        try (java.sql.Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(
-                     "SELECT person_id FROM person")) {
-            ResultSet resultSet = statement.executeQuery();
-            System.out.println("Список людей в базе: ");
+        try {
+            DataSource dataSource = DbUtil.buildDataSource();
+            try (java.sql.Connection connection = dataSource.getConnection();
+                 PreparedStatement statement = connection.prepareStatement(
+                         "SELECT person_id FROM person")) {
+                ResultSet resultSet = statement.executeQuery();
+                System.out.println("Список людей в базе: ");
 
-            while (resultSet.next()) {
-                Person person = findPerson(resultSet.getLong(1));
-                people.add(person);
-            }
+                while (resultSet.next()) {
+                    Person person = findPerson(resultSet.getLong(1));
+                    people.add(person);
+                }
 
-            if (people.size() <= 0) {
-                System.out.println(0);
+                if (people.size() <= 0) {
+                    System.out.println(0);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         } catch (SQLException e) {
             e.printStackTrace();

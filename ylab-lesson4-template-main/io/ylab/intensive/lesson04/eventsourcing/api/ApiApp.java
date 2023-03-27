@@ -23,6 +23,7 @@ public class ApiApp {
         personApi.findAll();
         personApi.deletePerson(1L);
         personApi.findAll();
+        personApi.deletePerson(1L);
         // Тут создание PersonApi, запуск и демонстрацию работы
     }
 
