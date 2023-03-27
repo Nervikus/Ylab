@@ -18,9 +18,17 @@ import io.ylab.intensive.lesson04.eventsourcing.Person;
 
 import javax.sql.DataSource;
 
+/**
+ * Моё предыдущее решение работало некорректно,
+ * когда DbApp был выключен - нарушался принцип FIFO.
+ * Это решение исправляет ситуацию. Я оставил одну очередь
+ * и вшил нужную команду в JSON.
+ */
+
 public class PersonApiImpl implements PersonApi {
     private ConnectionFactory connectionFactory;
     private String exchangeName = "exc";
+    private String queue = "queue";
     private Person person;
 
     public PersonApiImpl(ConnectionFactory connectionFactory) {
@@ -35,13 +43,13 @@ public class PersonApiImpl implements PersonApi {
              Channel channel = connection.createChannel()) {
 
             channel.exchangeDeclare(exchangeName, BuiltinExchangeType.TOPIC);
-            String queueDelete = "delete";
-            channel.queueDeclare(queueDelete, true, false, false, null);
-            channel.queueBind(queueDelete, exchangeName, "*");
+            String delete_key = "delete";
+            channel.queueDeclare(queue, true, false, false, null);
+            channel.queueBind(queue, exchangeName, "*");
 
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(person);
-            channel.basicPublish("", queueDelete, null, json.getBytes());
+            String json = mapper.writeValueAsString(person) + ";" + delete_key;
+            channel.basicPublish("", queue, null, json.getBytes());
             System.out.println("Удаляем данные человека, чей id=" + personId);
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
@@ -56,14 +64,14 @@ public class PersonApiImpl implements PersonApi {
              Channel channel = connection.createChannel()) {
 
             channel.exchangeDeclare(exchangeName, BuiltinExchangeType.TOPIC);
-            String queueSave = "save";
-            channel.queueDeclare(queueSave, true, false, false, null);
-            channel.queueBind(queueSave, exchangeName, "*");
+            String save_key = "save";
+            channel.queueDeclare(queue, true, false, false, null);
+            channel.queueBind(queue, exchangeName, "*");
 
             ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(person);
-            channel.basicPublish("", queueSave, null, json.getBytes());
-            System.out.println("Отправлено: " + json);
+            String json = mapper.writeValueAsString(person) + ";" + save_key;
+            channel.basicPublish("", queue, null, json.getBytes());
+            System.out.println("Сохраняем в базу " + person);
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }

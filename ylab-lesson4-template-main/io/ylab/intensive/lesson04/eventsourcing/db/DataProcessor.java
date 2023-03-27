@@ -12,6 +12,12 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Получатель теперь слушает только одну очередь,
+ * после получения сообщения расщепляет JSON и,
+ * в зависимости от текста послания, вызывает нужный метод.
+ */
+
 public class DataProcessor {
     private DataSource dataSource;
     private ConnectionFactory connectionFactory;
@@ -28,21 +34,19 @@ public class DataProcessor {
             Person person;
             System.out.println("Waiting...");
             try {
-                String queueSave = "save";
-                channel.queueDeclare(queueSave, true, false, false, null);
-                String queueDelete = "delete";
-                channel.queueDeclare(queueDelete, true, false, false, null);
+                String queueName = "queue";
+                channel.queueDeclare(queueName, true, false, false, null);
                 while (!Thread.currentThread().isInterrupted()) {
-                    GetResponse messageForDelete = channel.basicGet(queueDelete, true);
-                    GetResponse messageForSave = channel.basicGet(queueSave, true);
-                    if (messageForDelete != null) {
-                        String json = new String(messageForDelete.getBody());
-                        person = objectMapper.readValue(json, Person.class);
-                        deletePerson(person);
-                    } else if (messageForSave != null) {
-                        String json = new String(messageForSave.getBody());
-                        person = objectMapper.readValue(json, Person.class);
-                        savePerson(person);
+                    GetResponse messageForSave = channel.basicGet(queueName, true);
+                    if (messageForSave != null) {
+                        String[] json = new String(messageForSave.getBody()).split(";");
+                        person = objectMapper.readValue(json[0].trim(), Person.class);
+                        String message = json[1];
+                        if (message.equals("save")) {
+                            savePerson(person);
+                        } else if (message.equals("delete")) {
+                            deletePerson(person);
+                        }
                     }
                 }
             } catch (Exception e) {
