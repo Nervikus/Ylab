@@ -1,21 +1,20 @@
 package io.ylab.intensive.lesson04.persistentmap;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public interface PersistentMap {
 
   void init(String name);
 
-  boolean containsKey(String key) throws SQLException;
+  boolean containsKey(String key);
 
-  List<String> getKeys() throws SQLException;
+  List<String> getKeys();
 
-  String get(String key) throws SQLException;
+  String get(String key);
 
-  void remove(String key) throws SQLException;
+  void remove(String key);
 
-  void put(String key, String value) throws SQLException;
+  void put(String key, String value);
 
-  void clear() throws SQLException;
+  void clear();
 }
