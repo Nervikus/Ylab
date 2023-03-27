@@ -8,28 +8,29 @@ import io.ylab.intensive.lesson04.DbUtil;
 import io.ylab.intensive.lesson04.RabbitMQUtil;
 
 public class DbApp {
-  public static void main(String[] args) throws Exception {
-    DataSource dataSource = initDb();
-    ConnectionFactory connectionFactory = initMQ();
+    public static void main(String[] args) throws Exception {
+        DataSource dataSource = initDb();
+        ConnectionFactory connectionFactory = initMQ();
+        DataProcessor dataProcessor = new DataProcessor(dataSource, connectionFactory);
+        dataProcessor.handleMessage();
+        // тут создание и запуск приложения работы с БД
+    }
 
-    // тут пишем создание и запуск приложения работы с БД
-  }
-  
-  private static ConnectionFactory initMQ() throws Exception {
-    return RabbitMQUtil.buildConnectionFactory();
-  }
-  
-  private static DataSource initDb() throws SQLException {
-    String ddl = "" 
-                     + "drop table if exists person;" 
-                     + "create if not exists table person (\n"
-                     + "person_id bigint primary key,\n"
-                     + "first_name varchar,\n"
-                     + "last_name varchar,\n"
-                     + "middle_name varchar\n"
-                     + ")";
-    DataSource dataSource = DbUtil.buildDataSource();
-    DbUtil.applyDdl(ddl, dataSource);
-    return dataSource;
-  }
+    private static ConnectionFactory initMQ() throws Exception {
+        return RabbitMQUtil.buildConnectionFactory();
+    }
+
+    private static DataSource initDb() throws SQLException {
+        String ddl = ""
+                + "drop table if exists person;"
+                + "CREATE TABLE if not exists person (\n"
+                + "person_id bigint primary key,\n"
+                + "first_name varchar,\n"
+                + "last_name varchar,\n"
+                + "middle_name varchar\n"
+                + ")";
+        DataSource dataSource = DbUtil.buildDataSource();
+        DbUtil.applyDdl(ddl, dataSource);
+        return dataSource;
+    }
 }
