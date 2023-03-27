@@ -23,12 +23,11 @@ public class FileSortImpl implements FileSorter {
     }
 
     @Override
-    public File sort(File data) throws IOException, SQLException {
-        // ТУТ ПИШЕМ РЕАЛИЗАЦИЮ
-
+    public File sort(File data) {
         System.out.println("Сортировка с помощью batch-processing:");
         System.out.println(new Date());
 
+        // Добавляем данные из файла в таблицу БД
         String insertSQL = "INSERT INTO numbers (val) VALUES (?)";
         try (BufferedReader reader = new BufferedReader(new FileReader(data));
              Connection connection = dataSource.getConnection();
@@ -42,29 +41,39 @@ public class FileSortImpl implements FileSorter {
                 inputLines++;
             }
             preparedStatement.executeBatch();
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
         }
 
+        // Сортируем числа и записываем в новый файл
         String sortSQL = "SELECT val FROM numbers ORDER BY val DESC";
         File sortedFile = new File("sorted_data.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(sortedFile));
              Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sortSQL)) {
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                long number = resultSet.getLong(1);
-                writer.write(Long.toString(number));
-                writer.newLine();
-                outputLines++;
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    long number = resultSet.getLong(1);
+                    writer.write(Long.toString(number));
+                    writer.newLine();
+                    outputLines++;
+                }
             }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
         }
 
+        // Удаляем таблицу из БД
         String dropSQL = "DROP TABLE numbers";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(dropSQL)) {
 
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
         System.out.println(new Date());
         System.out.println("Количество чисел в начальном файле - " + inputLines);
         System.out.println("Количество чисел в отсортированном файле - " + outputLines);
@@ -75,10 +84,11 @@ public class FileSortImpl implements FileSorter {
 
     // Извиняюсь за дублирование - просто хочу показать медленную реализацию
     @Override
-    public File sortWithoutBatch(File data) throws IOException, SQLException {
-        // ТУТ ПИШЕМ РЕАЛИЗАЦИЮ
+    public File sortWithoutBatch(File data) {
         System.out.println("Сортировка без batch-processing:");
         System.out.println(new Date());
+
+        // Добавляем данные из файла в таблицу БД
         String insertSQL = "INSERT INTO numbers (val) VALUES (?)";
         try (BufferedReader reader = new BufferedReader(new FileReader(data));
              Connection connection = dataSource.getConnection();
@@ -91,28 +101,37 @@ public class FileSortImpl implements FileSorter {
                 preparedStatement.executeUpdate();
                 inputLines++;
             }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
         }
 
+        // Сортируем числа и записываем в новый файл
         String sortSQL = "SELECT val FROM numbers ORDER BY val DESC";
         File sortedFile = new File("sorted_data.txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(sortedFile));
              Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sortSQL)) {
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                long number = resultSet.getLong(1);
-                writer.write(Long.toString(number));
-                writer.newLine();
-                outputLines++;
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    long number = resultSet.getLong(1);
+                    writer.write(Long.toString(number));
+                    writer.newLine();
+                    outputLines++;
+                }
             }
+        } catch (SQLException | IOException e) {
+            e.printStackTrace();
         }
 
+        // Удаляем таблицу из БД
         String dropSQL = "DROP TABLE numbers";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(dropSQL)) {
 
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         System.out.println(new Date());
         System.out.println("Количество чисел в начальном файле - " + inputLines);
