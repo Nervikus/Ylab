@@ -2,6 +2,13 @@ package io.ylab.intensive.lesson04.eventsourcing.api;
 
 import com.rabbitmq.client.ConnectionFactory;
 import io.ylab.intensive.lesson04.RabbitMQUtil;
+import io.ylab.intensive.lesson04.eventsourcing.Person;
+
+/**
+ * Я переопределил метод toString у класса Person
+ * и вызвал вывод в консоль в методах класса PersonApiImpl,
+ * чтобы здесь не загромождать код добавлением System.out.println()
+ */
 
 public class ApiApp {
     public static void main(String[] args) throws Exception {
@@ -24,6 +31,10 @@ public class ApiApp {
         personApi.deletePerson(1L);
         personApi.findAll();
         personApi.deletePerson(1L);
+
+        System.out.println();
+        Person person = personApi.findPerson(1L);
+        System.out.println(person); // демонстрация возвращения null вместо объекта Person
         // Тут создание PersonApi, запуск и демонстрацию работы
     }
 

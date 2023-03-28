@@ -96,6 +96,7 @@ public class PersonApiImpl implements PersonApi {
                         return person;
                     } else {
                         System.out.println("В базе данных нет человека с id=" + personId);
+                        return null; // вовзращает null, как требовалось в условии задачи
                     }
                 }
             } catch (SQLException e) {
