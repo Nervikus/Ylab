@@ -12,6 +12,7 @@ import io.ylab.intensive.lesson04.eventsourcing.Person;
 
 public class ApiApp {
     public static void main(String[] args) throws Exception {
+        // Тут создание PersonApi, запуск и демонстрацию работы
         ConnectionFactory connectionFactory = initMQ();
         PersonApi personApi = new PersonApiImpl(connectionFactory);
         personApi.savePerson(1L, "Egiian", "Armen", "Nikolaevich");
@@ -31,11 +32,17 @@ public class ApiApp {
         personApi.deletePerson(1L);
         personApi.findAll();
         personApi.deletePerson(1L);
+        personApi.deletePerson(1L);
+        personApi.findAll();
 
         System.out.println();
+
+        // демонстрация возвращения нуля, вместо объекта Person
+        personApi.savePerson(1L, "Test", "123", "qwerty");
         Person person = personApi.findPerson(1L);
-        System.out.println(person); // демонстрация возвращения null вместо объекта Person
-        // Тут создание PersonApi, запуск и демонстрацию работы
+        personApi.deletePerson(1L);
+        person = personApi.findPerson(1L);
+        System.out.println(person);
     }
 
     private static ConnectionFactory initMQ() throws Exception {

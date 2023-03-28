@@ -79,7 +79,7 @@ public class PersonApiImpl implements PersonApi {
 
     @Override
     public Person findPerson(Long personId) {
-        Person person = new Person();
+        person = new Person();
         try {
             DataSource dataSource = DbUtil.buildDataSource();
             try (java.sql.Connection connection = dataSource.getConnection();
@@ -96,7 +96,7 @@ public class PersonApiImpl implements PersonApi {
                         return person;
                     } else {
                         System.out.println("В базе данных нет человека с id=" + personId);
-                        return null; // вовзращает null, как требовалось в условии задачи
+                        return null; // возвращает null вместо объекта Person
                     }
                 }
             } catch (SQLException e) {
@@ -120,7 +120,7 @@ public class PersonApiImpl implements PersonApi {
                 System.out.println("Список людей в базе: ");
 
                 while (resultSet.next()) {
-                    Person person = findPerson(resultSet.getLong(1));
+                    person = findPerson(resultSet.getLong(1));
                     people.add(person);
                 }
 

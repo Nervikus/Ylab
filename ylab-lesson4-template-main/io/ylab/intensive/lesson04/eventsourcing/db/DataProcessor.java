@@ -62,17 +62,19 @@ public class DataProcessor {
         String SQL = "SELECT * FROM person WHERE person_id = ?";
         try (java.sql.Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(SQL)) {
-            statement.setLong(1, personId);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    String deleteSQL = "DELETE FROM person WHERE person_id = ?";
-                    PreparedStatement deleteStatement = connection.prepareStatement(deleteSQL);
-                    deleteStatement.setLong(1, personId);
-                    deleteStatement.executeUpdate();
-                    deleteStatement.close();
-                    System.out.printf("%tT - Person deleted (ID:%d)%n", new Date(), personId);
-                } else {
-                    System.out.printf("%tT - Person (ID:%d) is not found to delete%n", new Date(), personId);
+            if (personId != null) { // добавил проверку на null
+                statement.setLong(1, personId);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (resultSet.next()) {
+                        String deleteSQL = "DELETE FROM person WHERE person_id = ?";
+                        PreparedStatement deleteStatement = connection.prepareStatement(deleteSQL);
+                        deleteStatement.setLong(1, personId);
+                        deleteStatement.executeUpdate();
+                        deleteStatement.close();
+                        System.out.printf("%tT - Person deleted (ID:%d)%n", new Date(), personId);
+                    } else {
+                        System.out.printf("%tT - Person (ID:%d) is not found to delete%n", new Date(), personId);
+                    }
                 }
             }
         } catch (SQLException e) {
