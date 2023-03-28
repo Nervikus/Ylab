@@ -9,18 +9,22 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Получатель теперь слушает только одну очередь,
  * после получения сообщения расщепляет JSON и,
  * в зависимости от текста послания, вызывает нужный метод.
+ *
+ * Изменил вывод в консоль через Logger (если я правильно понял ТЗ)
  */
 
 public class DataProcessor {
     private DataSource dataSource;
     private ConnectionFactory connectionFactory;
+    private static final Logger LOGGER = Logger.getLogger(DataProcessor.class.getName());
 
     public DataProcessor(DataSource dataSource, ConnectionFactory connectionFactory) {
         this.dataSource = dataSource;
@@ -32,7 +36,6 @@ public class DataProcessor {
              Channel channel = connection.createChannel()) {
             ObjectMapper objectMapper = new ObjectMapper();
             Person person;
-            System.out.println("Waiting...");
             try {
                 String queueName = "queue";
                 channel.queueDeclare(queueName, true, false, false, null);
@@ -71,9 +74,9 @@ public class DataProcessor {
                         deleteStatement.setLong(1, personId);
                         deleteStatement.executeUpdate();
                         deleteStatement.close();
-                        System.out.printf("%tT - Person deleted (ID:%d)%n", new Date(), personId);
+                        LOGGER.log(Level.INFO, "Person (ID:" + personId + ") deleted");
                     } else {
-                        System.out.printf("%tT - Person (ID:%d) is not found to delete%n", new Date(), personId);
+                        LOGGER.log(Level.INFO,"Person (ID:" + personId + ") is not found to delete");
                     }
                 }
             }
@@ -101,7 +104,7 @@ public class DataProcessor {
                     updateStatement.setLong(4, personId);
                     updateStatement.executeUpdate();
                     updateStatement.close();
-                    System.out.printf("%tT - Person updated (ID:%d)%n", new Date(), personId);
+                    LOGGER.log(Level.INFO, "Person (ID:" + personId + ") updated");
                 } else {
                     String insertSQL = "INSERT INTO person (person_id, first_name, last_name, middle_name) VALUES (?, ?, ?, ?)";
                     PreparedStatement insertStatement = connection.prepareStatement(insertSQL);
@@ -111,7 +114,7 @@ public class DataProcessor {
                     insertStatement.setString(4, middleName);
                     insertStatement.executeUpdate();
                     insertStatement.close();
-                    System.out.printf("%tT - Person inserted (ID:%d)%n", new Date(), personId);
+                    LOGGER.log(Level.INFO, "Person (ID:" + personId + ") inserted");
                 }
             }
         } catch (SQLException e) {

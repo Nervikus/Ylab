@@ -85,18 +85,21 @@ public class PersonApiImpl implements PersonApi {
             try (java.sql.Connection connection = dataSource.getConnection();
                  PreparedStatement statement = connection.prepareStatement(
                          "SELECT * FROM person WHERE person_id = ?")) {
-                statement.setLong(1, personId);
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    if (resultSet.next()) {
-                        person.setId(resultSet.getLong(1));
-                        person.setName(resultSet.getString(2));
-                        person.setLastName(resultSet.getString(3));
-                        person.setMiddleName(resultSet.getString(4));
-                        System.out.println(person);
-                        return person;
-                    } else {
-                        System.out.println("В базе данных нет человека с id=" + personId);
-                        return null; // возвращает null вместо объекта Person
+                if (personId == null) {
+                    return null;
+                } else {
+                    statement.setLong(1, personId);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            person.setId(resultSet.getLong(1));
+                            person.setName(resultSet.getString(2));
+                            person.setLastName(resultSet.getString(3));
+                            person.setMiddleName(resultSet.getString(4));
+                            System.out.println(person);
+                            return person;
+                        } else {
+                            return null; // возвращает null вместо объекта Person
+                        }
                     }
                 }
             } catch (SQLException e) {

@@ -24,7 +24,7 @@ public class ApiApp {
         personApi.findAll();
         personApi.deletePerson(1L);
         personApi.findAll();
-        personApi.findPerson(1L);
+        System.out.println(personApi.findPerson(1L));
         personApi.savePerson(1L, "Mr.", "Incognito", "@Nervikus");
         personApi.deletePerson(3L);
         personApi.deletePerson(2L);
