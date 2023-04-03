@@ -10,25 +10,31 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 @Component
-public class FileCreator {
+public class TableCreator {
     private File file = new File("censor_list.txt");
     private DataSource dataSource;
 
     @Autowired
-    public FileCreator(DataSource dataSource) {
+    public TableCreator(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     public void addToTable() {
+        String deleteSQL = "DELETE FROM censor";
         String insertSQL = "INSERT INTO censor (word) VALUES (?)";
         try (BufferedReader reader = new BufferedReader(new FileReader(file));
-             Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(insertSQL)) {
+             Connection connection = dataSource.getConnection()) {
+            // Добавил очищение таблицы при каждом запуске
+            PreparedStatement statement = connection.prepareStatement(deleteSQL);
+            statement.close();
+
+            statement = connection.prepareStatement(insertSQL);
             String line;
             while ((line = reader.readLine()) != null) {
                 statement.setString(1, line);
                 statement.executeUpdate();
             }
+            statement.close();
         } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
