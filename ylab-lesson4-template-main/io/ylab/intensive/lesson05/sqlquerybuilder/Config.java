@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+
 @Configuration
 @ComponentScan("io.ylab.intensive.lesson05.sqlquerybuilder")
 public class Config {
@@ -20,5 +23,10 @@ public class Config {
     dataSource.setDatabaseName("postgres");
     dataSource.setPortNumber(5432);
     return dataSource;
+  }
+
+  @Bean
+  public DatabaseMetaData databaseMetaData() throws SQLException {
+    return dataSource().getConnection().getMetaData();
   }
 }
