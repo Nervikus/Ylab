@@ -4,8 +4,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class DbApp {
   public static void main(String[] args) throws Exception {
+    // тут создание и запуск приложения работы с БД
     AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(Config.class);
     applicationContext.start();
-    // тут пишем создание и запуск приложения работы с БД
+    DataProcessor dataProcessor = applicationContext.getBean(DataProcessor.class);
+    dataProcessor.handleMessage();
   }
 }
