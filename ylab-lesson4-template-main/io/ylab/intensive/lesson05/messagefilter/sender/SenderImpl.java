@@ -7,6 +7,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.TimeoutException;
 
 @Component
@@ -27,6 +28,7 @@ public class SenderImpl implements Sender {
             channel.queueDeclare(queueName, true, false, false, null);
             channel.queueBind(queueName, exchangeName, "*");
             channel.basicPublish(exchangeName, queueName, null, message.getBytes());
+            System.out.println(new Date() + " Отправлена фраза:\n" + message);
         } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }

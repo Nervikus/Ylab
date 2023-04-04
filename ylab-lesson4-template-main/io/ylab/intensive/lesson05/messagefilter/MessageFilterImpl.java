@@ -10,11 +10,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class MessageFilterImpl implements MessageFilter {
     private DataSource dataSource;
     private ConnectionFactory connectionFactory;
+    private static final Logger LOGGER = Logger.getLogger(MessageFilterImpl.class.getName());
 
     @Autowired
     public MessageFilterImpl(DataSource dataSource, ConnectionFactory connectionFactory) {
@@ -34,6 +37,7 @@ public class MessageFilterImpl implements MessageFilter {
                     String message = new String(input.getBody());
                     String censorMessage = filter(message);
                     sendMessage(censorMessage);
+                    LOGGER.log(Level.INFO, "Censored phrase:\n" + censorMessage);
                 }
             }
         } catch (IOException | TimeoutException e) {
